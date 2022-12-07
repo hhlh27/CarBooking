@@ -11,7 +11,7 @@ CREATE TABLE Passenger
   PassengerID 				 varchar (5) NOT NULL,
   FirstName				varchar(50) 	NOT NULL,
 	LastName				varchar(50) 	NOT NULL,
-	Mobile  	    	  int  	NOT NULL,
+	Mobile  	    	  varchar(8)  	NOT NULL,
   Email		    	varchar(50)  	NOT NULL,
   
   AccPassword	    varchar(255)  	NOT NULL,
@@ -23,4 +23,4 @@ CREATE TABLE Passenger
 
 
 
-INSERT INTO Passenger (PassengerID, FirstName, LastName, Mobile,Email, AccPassword) VALUES ("P0001", "Jake", "Lee", 99991111,'jakelee@gmail.com','password123');
+INSERT INTO Passenger (PassengerID, FirstName, LastName, Mobile,Email, AccPassword) VALUES ("P0001", "Jake", "Lee", "99991111",'jakelee@gmail.com','password123');
