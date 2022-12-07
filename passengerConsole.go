@@ -1,11 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
+	"os"
 )
 
 type Passenger struct { // map this type to the record in the table
@@ -22,76 +23,62 @@ type Passengers struct {
 }
 
 func main() {
-	//outer:
+	menu()
+}
+func listMenu() {
+	fmt.Println("1. Create New Passenger Account")
+	fmt.Println("2. Update Passenger Account")
+
+	fmt.Println("0. Exit")
+	fmt.Print("Enter an option: ")
+}
+func menu() {
+	var choose int
+	listMenu()
 	for {
-		fmt.Println(strings.Repeat("=", 10))
-		fmt.Println("Passenger Console\n",
-			"1. Create new passenger account\n",
-			"2. Update passenger account\n",
-			/* "3. Update passenger account\n",
-			"4. Delete course\n", */
-			"9. Quit")
-		fmt.Print("Enter an option: ")
-
-		var choice int
-		fmt.Scanf("%d", &choice)
-
-		switch choice {
-		case 1:
-			create()
-			//break
-		case 2:
-			update()
-		/* case 3:
-			update()
-		case 4:
-			delete() */
-		case 9:
-			//break outer
+		fmt.Scan(&choose)
+		if choose == 0 {
+			fmt.Println("Thank You. Exiting...")
 			break
-		default:
-			fmt.Println("### Invalid Input ###")
+		} else {
+			switch choose {
+			case 1:
+				create()
+				fmt.Println("")
+				bufio.NewReader(os.Stdin).ReadBytes('\n')
+				listMenu()
+			case 2:
+				update()
+				fmt.Println("")
+				bufio.NewReader(os.Stdin).ReadBytes('\n')
+				listMenu()
+
+			default:
+				fmt.Println("Re-enter your choice!")
+				listMenu()
+			}
 		}
 	}
 }
-
 func create() {
-
-	var passengerID string
-	passengerID = "P0002"
-	/* fmt.Println("Enter Your First Name: ")
-
-	// var then variable name then variable type
-	var first string
-
-	// Taking input from user
-	fmt.Scanln(&first)
-	fmt.Println("Enter Second Last Name: ")
-	var second string
-	fmt.Scanln(&second)
-
-	// Print function is used to
-	// display output in the same line
-	fmt.Print("Your Full Name is: ")
-
-	// Addition of two string
-	fmt.Print(first + " " + second) */
 	var passenger Passenger
-	fmt.Println("Enter your first name: ")
+	var passengerID string
+	fmt.Println()
+	fmt.Print("Enter your identification number: ")
 
-	/* reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	passenger.FirstName = strings.TrimSpace(input) */
-	fmt.Scanln(&(passenger.FirstName))
-	fmt.Println("Enter your last name: ")
-	fmt.Scanln(&(passenger.LastName))
+	fmt.Scan(&(passenger.ID))
+
+	fmt.Print("Enter your first name: ")
+	fmt.Scan(&(passenger.FirstName))
+	fmt.Print("Enter your last name: ")
+	fmt.Scan(&(passenger.LastName))
 	//fmt.Scanf("%s", &(passenger.LastName))
-	fmt.Println("Enter your mobile number: ")
-	fmt.Scanln(&(passenger.Mobile))
-	fmt.Println("Enter your email: ")
-	fmt.Scanln(&(passenger.Email))
-	fmt.Println("Enter your password: ")
-	fmt.Scanln(&(passenger.Password))
+	fmt.Print("Enter your mobile number: ")
+	fmt.Scan(&(passenger.Mobile))
+	fmt.Print("Enter your email: ")
+	fmt.Scan(&(passenger.Email))
+	fmt.Print("Enter your password: ")
+	fmt.Scan(&(passenger.Password))
 
 	postBody, _ := json.Marshal(passenger)
 	resBody := bytes.NewBuffer(postBody)
@@ -112,45 +99,22 @@ func create() {
 	}
 }
 func update() {
-
+	var passengerID string
 	var passenger Passenger
-	fmt.Println("Enter the ID of the account to be updated: ")
-	fmt.Scanln(&(passenger.ID))
-	if passenger.ID != " " {
-		updateDetails(passenger.ID)
-	}
-
-}
-func updateDetails(passengerID string) {
-	var passenger Passenger
-	fmt.Println("Enter your first name: ")
-
-	/* reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	passenger.FirstName = strings.TrimSpace(input) */
-	fmt.Scanln(&(passenger.FirstName))
-	fmt.Println("Enter your last name: ")
-	fmt.Scanln(&(passenger.LastName))
-	//fmt.Scanf("%s", &(passenger.LastName))
-	fmt.Println("Enter your mobile number: ")
-	fmt.Scanln(&(passenger.Mobile))
-	fmt.Println("Enter your email: ")
-	fmt.Scanln(&(passenger.Email))
-	fmt.Println("Enter your password: ")
-	fmt.Scanln(&(passenger.Password))
-	/* fmt.Print("Enter the new first name: ")
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	passenger.FirstName = strings.TrimSpace(input)
+	fmt.Println()
+	fmt.Print("Enter identification number: ")
+	fmt.Scan(&(passenger.ID))
+	fmt.Print("Enter your first name: ")
+	fmt.Scan(&(passenger.FirstName))
 	fmt.Print("Enter your last name: ")
-	fmt.Scanf("%s", &(passenger.LastName))
+	fmt.Scan(&(passenger.LastName))
+	//fmt.Scanf("%s", &(passenger.LastName))
 	fmt.Print("Enter your mobile number: ")
-	fmt.Scanf("%d", &(passenger.Mobile))
+	fmt.Scan(&(passenger.Mobile))
 	fmt.Print("Enter your email: ")
-	fmt.Scanf("%s", &(passenger.Email))
+	fmt.Scan(&(passenger.Email))
 	fmt.Print("Enter your password: ")
-	fmt.Scanf("%s", &(passenger.Password)) */
-
+	fmt.Scan(&(passenger.Password))
 	postBody, _ := json.Marshal(passenger)
 
 	client := &http.Client{}
