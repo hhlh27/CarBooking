@@ -20,7 +20,7 @@ type Driver struct { // map this type to the record in the table
 	LastName  string
 	IdenNo    string
 	CarNo     string
-	Mobile    int
+	Mobile    string
 	Email     string
 	Password  string
 }
