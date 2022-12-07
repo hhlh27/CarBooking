@@ -15,7 +15,7 @@ type Passenger struct { // map this type to the record in the table
 	ID        string
 	FirstName string
 	LastName  string
-	Mobile    int
+	Mobile    string
 	Email     string
 	Password  string
 }
