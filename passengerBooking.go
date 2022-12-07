@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -25,48 +27,56 @@ type Bookings struct {
 }
 
 func main() {
-outer:
+	menu()
+
+	
+}
+func listMenu() {
+	fmt.Println("1. Make a booking")
+	fmt.Println("2. View all bookings")
+
+	fmt.Println("0. Exit")
+	fmt.Print("Enter an option: ")
+}
+func menu() {
+	var choose int
+	listMenu()
 	for {
-		fmt.Println(strings.Repeat("=", 10))
-		fmt.Println("Passenger Booking Management Console\n",
-			"1. Make a booking\n",
-			"2. View all bookings\n",
-			/* "3. Update passenger account\n",
-			"4. Delete course\n", */
-			"9. Quit")
-		fmt.Print("Enter an option: ")
+		fmt.Scan(&choose)
+		if choose == 0 {
+			fmt.Println("Thank You. Exiting...")
+			break
+		} else {
+			switch choose {
+			case 1:
+				create()
+				fmt.Println("")
+				bufio.NewReader(os.Stdin).ReadBytes('\n')
+				listMenu()
+			case 2:
+				View()
+				fmt.Println("")
+				bufio.NewReader(os.Stdin).ReadBytes('\n')
+				listMenu()
 
-		var choice int
-		fmt.Scanf("%d", &choice)
-
-		switch choice {
-		case 1:
-			create()
-		case 2:
-			View()
-		/* case 3:
-			update()
-		case 4:
-			delete() */
-		case 9:
-			break outer
-		default:
-			fmt.Println("### Invalid Input ###")
+			default:
+				fmt.Println("Re-enter your choice!")
+				listMenu()
+			}
 		}
 	}
 }
-
 func create() {
 	var booking Booking
 	
 	var bookingID string
 	
+	fmt.Println()
+	fmt.Print("Enter pickup postal code: ")
+	fmt.Scan( &(booking.DropOff))
 
-	fmt.Println("Enter pickup postal code: ")
-	fmt.Scanln( &(booking.DropOff))
-
-	fmt.Println("Enter your drop off postal code: ")
-	fmt.Scanln( &(booking.DropOff))
+	fmt.Print("Enter your drop off postal code: ")
+	fmt.Scan( &(booking.DropOff))
 	
 	booking.BookingDateTime=time.Now()
 	booking.BookingStatus="pending"

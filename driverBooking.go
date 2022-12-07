@@ -1,12 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"strings"
+	"os"
 	"time"
 )
 
@@ -25,54 +25,60 @@ type Bookings struct {
 }
 
 func main() {
-	//now := time.Now()
-outer:
+	menu()
+
+}
+func listMenu() {
+	fmt.Println("1. Initiate start strip")
+	fmt.Println("2. End Trip")
+
+	fmt.Println("0. Exit")
+	fmt.Print("Enter an option: ")
+}
+func menu() {
+	var choose int
+	listMenu()
 	for {
-		fmt.Println(strings.Repeat("=", 10))
-		fmt.Println("Driver  Console\n",
-			"1. Iniate start trip\n",
-			"2. End trip\n",
-			/* "3. Update passenger account\n",
-			"4. Delete course\n", */
-			"9. Quit")
-		fmt.Print("Enter an option: ")
+		fmt.Scan(&choose)
+		if choose == 0 {
+			fmt.Println("Thank You. Exiting...")
+			break
+		} else {
+			switch choose {
+			case 1:
+				InitiateStartTrip()
+				fmt.Println("")
+				bufio.NewReader(os.Stdin).ReadBytes('\n')
+				listMenu()
+			case 2:
+				EndTrip()
+				fmt.Println("")
+				bufio.NewReader(os.Stdin).ReadBytes('\n')
+				listMenu()
 
-		var choice int
-		fmt.Scanf("%d", &choice)
-
-		switch choice {
-		case 1:
-			InitiateStartTrip()
-		case 2:
-			EndTrip()
-		/* case 3:
-			update()
-		case 4:
-			delete() */
-		case 9:
-			break outer
-		default:
-			fmt.Println("### Invalid Input ###")
+			default:
+				fmt.Println("Re-enter your choice!")
+				listMenu()
+			}
 		}
 	}
 }
-
 func InitiateStartTrip() {
 	var booking Booking
-	var driverID string
-	driverID = "D0001"
+	var bookingID string
+	//driverID = "D0001"
 
-	booking.DriverID = driverID
+	//booking.DriverID = driverID
 	booking.BookingStatus = "Confimed"
 
 	postBody, _ := json.Marshal(booking)
 	resBody := bytes.NewBuffer(postBody)
 
 	client := &http.Client{}
-	if req, err := http.NewRequest(http.MethodPut, "http://localhost:5000/api/v1/bookings/"+booking.ID, resBody); err == nil {
+	if req, err := http.NewRequest(http.MethodPut, "http://localhost:5000/api/v1/bookings/"+bookingID, resBody); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if res.StatusCode == 202 {
-				fmt.Println("Booking", driverID, "confirmed successfully")
+				fmt.Println("Booking", bookingID, "confirmed successfully")
 			} else if res.StatusCode == 404 {
 				fmt.Println("Error - Booking", booking.ID, "does not exist")
 			}
@@ -85,12 +91,12 @@ func InitiateStartTrip() {
 }
 func EndTrip() {
 	var booking Booking
-	var driverID string
+	//var driverID string
 	var bookingID string
-	driverID = "D0001"
+	//driverID = "D0001"
 	bookingID = "B0001"
 
-	booking.DriverID = driverID
+	//booking.DriverID = driverID
 	booking.BookingStatus = "Completed"
 
 	postBody, _ := json.Marshal(booking)
@@ -100,7 +106,7 @@ func EndTrip() {
 	if req, err := http.NewRequest(http.MethodPut, "http://localhost:5000/api/v1/bookings/"+bookingID, resBody); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if res.StatusCode == 202 {
-				fmt.Println("Booking", driverID, "completed")
+				fmt.Println("Booking", bookingID, "completed")
 			} else if res.StatusCode == 404 {
 				fmt.Println("Error - Booking", bookingID, "does not exist")
 			}
