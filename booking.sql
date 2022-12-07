@@ -6,13 +6,13 @@ USE booking_db;
 
 CREATE TABLE Booking
 (
-  BookingID				int NOT NULL,
-  PassengerID			int      NOT NULL,
-DriverID			int      NOT NULL,
-PickUp			int      NOT NULL,
-DropOff		int      NOT NULL,
+  BookingID				varchar (5) NOT NULL,
+  PassengerID			varchar (5)     NOT NULL,
+DriverID			varchar (5)      NOT NULL,
+PickUp			varchar (6)     NOT NULL,
+DropOff		varchar (6)     NOT NULL,
 BookingDateTime		datetime		NOT NULL ,
-BookingStatus     	varchar(50)  	NOT NULL,
+BookingStatus     	varchar(15)  	NOT NULL,
   CONSTRAINT PK_Booking PRIMARY KEY NONCLUSTERED (BookingID)
 
 )
