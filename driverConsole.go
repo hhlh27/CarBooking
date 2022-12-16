@@ -9,15 +9,27 @@ import (
 	"os"
 )
 
+/*
+	 type Driver struct { // map this type to the record in the table
+		DriverID  string
+		FirstName string
+		LastName  string
+		CarNo     string
+		Mobile    int
+		Email     string
+		Password  string
+	}
+*/
 type Driver struct { // map this type to the record in the table
-	DriverID  string
-	FirstName string
-	LastName  string
-	CarNo     string
-	Mobile    int
-	Email     string
-	Password  string
+
+	FirstName string `json:"First Name"`
+	LastName  string `json:"Last Name"`
+	CarNo     string `json:"Car Number"`
+	Mobile    string `json:"Mobile"`
+	Email     string `json:"Email"`
+	Password  string `json:"Password"`
 }
+
 type Drivers struct {
 	Drivers map[string]Driver `json:"Drivers"`
 }
@@ -68,7 +80,7 @@ func create() {
 	fmt.Println()
 	fmt.Print("Enter your identification number: ")
 
-	fmt.Scan(&(driver.DriverID))
+	fmt.Scan(&(driverID))
 	fmt.Print("Enter your first name: ")
 
 	fmt.Scan(&(driver.FirstName))
@@ -98,7 +110,7 @@ func create() {
 	resBody := bytes.NewBuffer(postBody)
 
 	client := &http.Client{}
-	if req, err := http.NewRequest(http.MethodPost, "http://localhost:5000/api/v1/drivers/"+driverID, resBody); err == nil {
+	if req, err := http.NewRequest(http.MethodPost, "http://localhost:7000/api/v1/drivers/"+driverID, resBody); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if res.StatusCode == 202 {
 				fmt.Println("driver", driverID, "created successfully")
@@ -119,7 +131,7 @@ func update() {
 	fmt.Println()
 	fmt.Print("Enter your identification number: ")
 
-	fmt.Scan(&(driver.DriverID))
+	fmt.Scan(&(driverID))
 
 	fmt.Print("Enter your first name: ")
 
@@ -152,7 +164,7 @@ func update() {
 	postBody, _ := json.Marshal(driver)
 
 	client := &http.Client{}
-	if req, err := http.NewRequest(http.MethodPut, "http://localhost:5000/api/v1/drivers/"+driverID, bytes.NewBuffer(postBody)); err == nil {
+	if req, err := http.NewRequest(http.MethodPut, "http://localhost:7000/api/v1/drivers/"+driverID, bytes.NewBuffer(postBody)); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if res.StatusCode == 202 {
 				fmt.Println("Driver", driverID, "updated successfully")
