@@ -10,12 +10,11 @@ import (
 )
 
 type Passenger struct { // map this type to the record in the table
-	ID        string
-	FirstName string
-	LastName  string
-	Mobile    string
-	Email     string
-	Password  string
+	FirstName string `json:"First Name"`
+	LastName  string `json:"Last Name"`
+	Mobile    string `json:"Mobile"`
+	Email     string `json:"Email"`
+	Password  string `json:"Password"`
 }
 
 type Passengers struct {
@@ -66,7 +65,7 @@ func create() {
 	fmt.Println()
 	fmt.Print("Enter your identification number: ")
 
-	fmt.Scan(&(passenger.ID))
+	fmt.Scan(&(passengerID))
 
 	fmt.Print("Enter your first name: ")
 	fmt.Scan(&(passenger.FirstName))
@@ -84,7 +83,7 @@ func create() {
 	resBody := bytes.NewBuffer(postBody)
 
 	client := &http.Client{}
-	if req, err := http.NewRequest(http.MethodPost, "http://localhost:5000/api/v1/passengers/"+passengerID, resBody); err == nil {
+	if req, err := http.NewRequest(http.MethodPost, "http://localhost:5000/api/v1/passenger/"+passengerID, resBody); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if res.StatusCode == 202 {
 				fmt.Println("Passenger", passengerID, "created successfully")
@@ -103,7 +102,7 @@ func update() {
 	var passenger Passenger
 	fmt.Println()
 	fmt.Print("Enter identification number: ")
-	fmt.Scan(&(passenger.ID))
+	fmt.Scan(&(passengerID))
 	fmt.Print("Enter your first name: ")
 	fmt.Scan(&(passenger.FirstName))
 	fmt.Print("Enter your last name: ")
@@ -118,7 +117,7 @@ func update() {
 	postBody, _ := json.Marshal(passenger)
 
 	client := &http.Client{}
-	if req, err := http.NewRequest(http.MethodPut, "http://localhost:5000/api/v1/passengers/"+passengerID, bytes.NewBuffer(postBody)); err == nil {
+	if req, err := http.NewRequest(http.MethodPut, "http://localhost:5000/api/v1/passenger/"+passengerID, bytes.NewBuffer(postBody)); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if res.StatusCode == 202 {
 				fmt.Println("passenger", passengerID, "updated successfully")
