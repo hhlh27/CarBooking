@@ -13,7 +13,7 @@ import (
 )
 
 type Passenger struct { // map this type to the record in the table
-	ID        string `json:"Id"`
+	//ID        string `json:"Id"`
 	FirstName string `json:"First Name"`
 	LastName  string `json:"Last Name"`
 	Mobile    string `json:"Mobile"`
@@ -38,12 +38,11 @@ func main() {
 	router.HandleFunc("/api/v1/passengers/{passengerid}", passenger).Methods("GET", "POST", "PUT")
 	//router.HandleFunc("/api/v1/courses", allpassengers)
 	router.HandleFunc("/api/v1/passengers", allPassengers).Methods("GET")
-	fmt.Println("Listening at port 5001")
-	log.Fatal(http.ListenAndServe(":5001", router))
+	fmt.Println("Listening at port 5000")
+	log.Fatal(http.ListenAndServe(":5000", router))
 }
 func passenger(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-
 	if r.Method == "POST" {
 		if body, err := ioutil.ReadAll(r.Body); err == nil {
 			var data Passenger
@@ -83,6 +82,9 @@ func passenger(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+	} else if val, ok := isExist(params["passengerid"]); ok {
+
+		json.NewEncoder(w).Encode(val)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "Invalid passenger ID")
@@ -183,13 +185,13 @@ func allPassengers(w http.ResponseWriter, r *http.Request) {
 	} else {
 		passengersWrapper := struct {
 			Passengers map[string]Passenger `json:"Passengers"`
-		}{getPasseners()}
+		}{getPassengers()}
 		json.NewEncoder(w).Encode(passengersWrapper)
 		return
 	}
 }
-func getPasseners() map[string]Passenger {
-	results, err := db.Query("select * from Passenger")
+func getPassengers() map[string]Passenger {
+	results, err := db.Query("select * from passenger")
 	if err != nil {
 		panic(err.Error())
 	}
