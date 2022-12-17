@@ -1,21 +1,21 @@
 package main
 
+//import required packages
 import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-
-	"github.com/gorilla/mux"
-
 	"io/ioutil"
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// Defining driver struct
 type Driver struct { // map this type to the record in the table
-	//DriverID  string
 	FirstName string
 	LastName  string
 	CarNo     string
@@ -24,24 +24,28 @@ type Driver struct { // map this type to the record in the table
 	Password  string
 }
 
+// create database object
 var (
 	db  *sql.DB
 	err error
 )
 
 func main() {
-	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/db")
+	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/db") //Connecting to MySQL DB
 
 	if err != nil {
 		panic(err.Error())
 	}
+	//initialise router
 	router := mux.NewRouter()
-	router.HandleFunc("/api/v1/driver/{driverid}", driver).Methods("GET", "POST", "PUT")
-	//router.HandleFunc("/api/v1/courses", allpassengers)
+	//creating the endpoints, register REST URL
+	router.HandleFunc("/api/v1/driver/{driverid}", driver).Methods("GET", "POST", "PUT") //register HTTP methods GET,POST,PUT
 	router.HandleFunc("/api/v1/drivers", alldrivers)
 	fmt.Println("Listening at port 7000")
 	log.Fatal(http.ListenAndServe(":7000", router))
 }
+
+// driver function-handles methods GET,POST,PUT
 func driver(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
@@ -49,10 +53,9 @@ func driver(w http.ResponseWriter, r *http.Request) {
 		if body, err := ioutil.ReadAll(r.Body); err == nil {
 			var data Driver
 
-			if err := json.Unmarshal(body, &data); err == nil {
+			if err := json.Unmarshal(body, &data); err == nil { //Decoding from JSON
 				if _, ok := isExist(params["driverid"]); !ok {
 					fmt.Println(data)
-					//courses[params["courseid"]] = data
 					insertDriver(params["driverid"], data)
 
 					w.WriteHeader(http.StatusAccepted)
@@ -68,11 +71,9 @@ func driver(w http.ResponseWriter, r *http.Request) {
 		if body, err := ioutil.ReadAll(r.Body); err == nil {
 			var data Driver
 
-			if err := json.Unmarshal(body, &data); err == nil {
+			if err := json.Unmarshal(body, &data); err == nil { //Decoding from JSON
 				if _, ok := isExist(params["driverid"]); ok {
 					fmt.Println(data)
-
-					//courses[params["courseid"]] = data
 					updateDriver(params["driverid"], data)
 					w.WriteHeader(http.StatusAccepted)
 				} else {
@@ -86,75 +87,48 @@ func driver(w http.ResponseWriter, r *http.Request) {
 
 	} else if val, ok := isExist(params["driverid"]); ok {
 
-		json.NewEncoder(w).Encode(val)
+		json.NewEncoder(w).Encode(val) //Encoding into JSON
 
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "Invalid driver ID")
 	}
 }
+
+// function to check if driver exists using driver id
 func isExist(id string) (Driver, bool) {
-	/* //db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/driver_db")
-
-	// handle error
-	if err != nil {
-		panic(err.Error())
-	}
-
-	defer db.Close() */
 	var d Driver
 	results := db.QueryRow("select * from driver where id=?", id)
-
-	//var id string
 	err = results.Scan(&id, &d.FirstName, &d.LastName, &d.CarNo, &d.Mobile, &d.Email, &d.Password)
 	if err == sql.ErrNoRows {
 		return d, false
 	}
 	return d, true
 }
+
+// function to insert a new driver record into database
 func insertDriver(id string, d Driver) {
-	/* db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/driver_db")
-
-	// handle error
-	if err != nil {
-		panic(err.Error())
-	}
-
-	defer db.Close() */
+	//inserting into db
 	_, err = db.Exec("insert into driver values(?,?,?,?,?)", id, d.FirstName, d.LastName, d.CarNo, d.Mobile, d.Email, d.Password)
 	if err != nil {
 		panic(err.Error())
 	}
-	//use curl to insert in cmd
+
 }
+
+// function to update driver record
 func updateDriver(id string, d Driver) {
-	/* db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/driver_db")
-
-	// handle error
-	if err != nil {
-		panic(err.Error())
-	} */
-
-	//defer db.Close()
 	_, err = db.Exec("update driver set fname=?, lname=?,cNo=?, mobile=?,email=?,pw=? where id=?", d.FirstName, d.LastName, d.CarNo, d.Mobile, d.Email, d.Password, id)
 	if err != nil {
 		panic(err.Error())
 	}
-	//use curl to insert in cmd
+
 }
+
+// function to display and format all driver records
 func alldrivers(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-
-	/* found := false
-	results := map[string]Driver{} */
-
 	if value := query.Get("q"); len(value) > 0 {
-		//for k, v := range drivers {
-		/* 	if strings.Contains(strings.ToLower(v.FirstName), strings.ToLower(value)) {
-				results[k] = v
-				found = true
-			}
-		} */
 		results, found := queryDrivers(value)
 
 		if !found {
@@ -169,12 +143,14 @@ func alldrivers(w http.ResponseWriter, r *http.Request) {
 		driversWrapper := struct {
 			Drivers map[string]Driver `json:"Drivers"`
 		}{getDrivers()}
-		json.NewEncoder(w).Encode(driversWrapper)
+		json.NewEncoder(w).Encode(driversWrapper) //Encoding into JSON
 		return
 	}
 }
+
+// function to get all driver records
 func getDrivers() map[string]Driver {
-	results, err := db.Query("select * from Driver")
+	results, err := db.Query("select * from Driver") //Retrieving from DB
 	if err != nil {
 		panic(err.Error())
 	}
@@ -195,6 +171,7 @@ func getDrivers() map[string]Driver {
 	return drivers
 }
 
+// function to search for a driver record
 func queryDrivers(query string) (map[string]Driver, bool) {
 	results, err := db.Query("select * from Driver where lower(firstname) like lower(?)", "%"+query+"%")
 	if err != nil {

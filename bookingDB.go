@@ -1,5 +1,6 @@
 package main
 
+//import required packages
 import (
 	"database/sql"
 	"encoding/json"
@@ -14,6 +15,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// Defining Passenger struct
 type Booking struct { // map this type to the record in the table
 
 	PassengerID     string `json:"Passenger Id"`
@@ -24,31 +26,35 @@ type Booking struct { // map this type to the record in the table
 	BookingStatus   string `json:"Booking Status"`
 }
 
+// create database object
 var (
 	db  *sql.DB
 	err error
 )
 
 func main() {
-
+	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/db") //Connecting to MySQL DB
+	if err != nil {
+		panic(err.Error())
+	}
+	//initialise router
 	router := mux.NewRouter()
-	router.HandleFunc("/api/v1/booking/{bookingid}", booking).Methods("GET", "POST", "PUT")
-	router.HandleFunc("/api/v1/bookings", allbookings).Methods("GET")
-	router.HandleFunc("/api/v1/pendingbookings", pendingbookings).Methods("GET")
-	router.HandleFunc("/api/v1/passengerbookings", passengerbooking).Methods("GET", "POST", "PUT")
-	//router.HandleFunc("/api/v1/booking/{passengerid}", passengerBooking).Methods("GET")
-	//router.HandleFunc("/api/v1/courses", allpassengers)
+	//creating the endpoints, register REST URL
+	router.HandleFunc("/api/v1/booking/{bookingid}", booking).Methods("GET", "POST", "PUT") //register HTTP methods GET,POST,PUT
+	router.HandleFunc("/api/v1/bookings", allbookings).Methods("GET")                       //Register HTTP methods GET
+	router.HandleFunc("/api/v1/pendingbookings", pendingbookings).Methods("GET")            //Register HTTP methods GET
 	fmt.Println("Listening at port 5003")
 	log.Fatal(http.ListenAndServe(":5003", router))
 }
+
+// booking function-handles methods GET,POST,PUT
 func booking(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-
 	if r.Method == "POST" {
 		if body, err := ioutil.ReadAll(r.Body); err == nil {
 			var data Booking
 
-			if err := json.Unmarshal(body, &data); err == nil {
+			if err := json.Unmarshal(body, &data); err == nil { //Decoding from JSON
 				if _, ok := isExist(params["bookingid"]); !ok {
 					fmt.Println(data)
 					//courses[params["courseid"]] = data
@@ -67,7 +73,7 @@ func booking(w http.ResponseWriter, r *http.Request) {
 		if body, err := ioutil.ReadAll(r.Body); err == nil {
 			var data Booking
 
-			if err := json.Unmarshal(body, &data); err == nil {
+			if err := json.Unmarshal(body, &data); err == nil { //Decoding from JSON
 				if _, ok := isExist(params["bookingid"]); ok {
 					fmt.Println(data)
 
@@ -85,24 +91,18 @@ func booking(w http.ResponseWriter, r *http.Request) {
 
 	} else if val, ok := isExist(params["bookingid"]); ok {
 
-		json.NewEncoder(w).Encode(val)
+		json.NewEncoder(w).Encode(val) //Encoding into JSON
 
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "Invalid Booking ID")
 	}
 }
+
+// function to check if booking exists using booking id
 func isExist(id string) (Booking, bool) {
-	/* db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/booking_db")
-
-	// handle error
-	if err != nil {
-		panic(err.Error())
-	}
-
-	defer db.Close() */
 	var b Booking
-	results := db.QueryRow("select * from booking where id=?", id)
+	results := db.QueryRow("select * from booking where id=?", id) //Retrieving from DB
 
 	//var id string
 	err = results.Scan(&id, &b.PassengerID, &b.DriverID, &b.PickUp, &b.DropOff, &b.BookingDateTime, &b.BookingStatus)
@@ -111,84 +111,35 @@ func isExist(id string) (Booking, bool) {
 	}
 	return b, true
 }
+
+// function to insert a new booking record into database
 func insertBooking(id string, b Booking) {
-	/* db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/booking_db")
-
-	// handle error
-	if err != nil {
-		panic(err.Error())
-	} */
-
-	//defer db.Close()
+	//inserting into db
 	_, err = db.Exec("insert into booking values(?,?,?,?,?)", id, b.PassengerID, b.DriverID, b.PickUp, b.DropOff, b.BookingDateTime, b.BookingStatus)
 	if err != nil {
 		panic(err.Error())
 	}
-	//use curl to insert in cmd
 }
+
+// function to update booking record
 func updateBooking(id string, b Booking) {
-	/* db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/booking_db")
-
-	// handle error
-	if err != nil {
-		panic(err.Error())
-	}
-
-	defer db.Close() */
+	//updating record in db
 	_, err = db.Exec("update booking set status=?", b.BookingStatus)
 	if err != nil {
 		panic(err.Error())
 	}
-	//use curl to insert in cmd
 }
 
-func searchBooking(q string) (map[string]Booking, bool) {
-	db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/booking_db")
-
-	// handle error
-	if err != nil {
-		panic(err.Error())
-	}
-
-	defer db.Close()
-	results, err := db.Query("select * from booking where lower(passengerid) like lower(?) ", "%"+q+"%") //db query-> returns 2 things, dg query row returns 1 thing only
-	if err != nil {
-		panic(err.Error())
-	}
-	var bookingsDB map[string]Booking = map[string]Booking{}
-	for results.Next() {
-		var b Booking
-		var id string
-		err = results.Scan(&id, &b.BookingDateTime, &b.DriverID, &b.PickUp, &b.DropOff)
-		if err != nil {
-			panic(err.Error())
-		}
-		bookingsDB[id] = b
-	}
-
-	if len(bookingsDB) == 0 {
-		return bookingsDB, false
-	}
-	return bookingsDB, true
-}
+// function to display and format all pending booking records
 func pendingbookings(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-
-	/* found := false
-	results := map[string]Booking{} */
-
+	query := r.URL.Query() //Retrieving Value from Query String
 	if value := query.Get("q"); len(value) > 0 {
-		/* for k, v := range bookings {
-			if strings.Contains(strings.ToLower(v.PassengerID), strings.ToLower(value)) {
-				results[k] = v
-				found = true
-			}
-		} */
+
 		results, found := queryBookings(value)
 		if !found {
 			fmt.Fprintf(w, "No booking found")
 		} else {
-			json.NewEncoder(w).Encode(struct {
+			json.NewEncoder(w).Encode(struct { //Encoding into JSON
 				Results map[string]Booking `json:"Search Results"`
 			}{results})
 		}
@@ -197,75 +148,50 @@ func pendingbookings(w http.ResponseWriter, r *http.Request) {
 		bookingsWrapper := struct {
 			Bookings map[string]Booking `json:"Bookings"`
 		}{getPendingBookings()}
-		json.NewEncoder(w).Encode(bookingsWrapper)
+		json.NewEncoder(w).Encode(bookingsWrapper) //Encoding into JSON
 		return
 	}
 
 }
-func allbookings(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
 
-	/* found := false
-	results := map[string]Booking{} */
+// function to display and format all booking records
+func allbookings(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query() //Retrieving Value from Query String
 
 	if value := query.Get("q"); len(value) > 0 {
-		/* for k, v := range bookings {
-			if strings.Contains(strings.ToLower(v.PassengerID), strings.ToLower(value)) {
-				results[k] = v
-				found = true
-			}
-		} */
 		results, found := queryBookings(value)
 		if !found {
 			fmt.Fprintf(w, "No booking found")
 		} else {
-			json.NewEncoder(w).Encode(struct {
+			json.NewEncoder(w).Encode(struct { //Encoding into JSON
 				Results map[string]Booking `json:"Search Results"`
 			}{results})
 		}
 
+	} else if value = query.Get("passengerid"); len(value) > 0 {
+
+		passengerid := value
+		results, found := findPassengerBookings(passengerid)
+
+		if !found {
+			fmt.Fprintf(w, "No bookings found")
+		} else {
+			json.NewEncoder(w).Encode(struct { //Encoding into JSON
+				Results map[string]Booking `json:"Bookings"`
+			}{results})
+		}
 	} else {
 		bookingsWrapper := struct {
 			Bookings map[string]Booking `json:"Bookings"`
 		}{getBookings()}
-		json.NewEncoder(w).Encode(bookingsWrapper)
+		json.NewEncoder(w).Encode(bookingsWrapper) //Encoding into JSON
 		return
 	}
 }
-func passengerbooking(w http.ResponseWriter, r *http.Request) {
-	//var  passengerid string
-	query := r.URL.Query()
 
-	/* found := false
-	results := map[string]Booking{} */
-
-	if value := query.Get("q"); len(value) > 0 {
-		/* for k, v := range bookings {
-			if strings.Contains(strings.ToLower(v.PassengerID), strings.ToLower(value)) {
-				results[k] = v
-				found = true
-			}
-		} */
-		results, found := queryBookings(value)
-		if !found {
-			fmt.Fprintf(w, "No booking found")
-		} else {
-			json.NewEncoder(w).Encode(struct {
-				Results map[string]Booking `json:"Search Results"`
-			}{results})
-		}
-
-	} else {
-		bookingsWrapper := struct {
-			Bookings map[string]Booking `json:"Bookings"`
-		}{getPassengerBookings()}
-		json.NewEncoder(w).Encode(bookingsWrapper)
-		return
-	}
-
-}
+// function to get all booking records
 func getBookings() map[string]Booking {
-	results, err := db.Query("select * from Booking")
+	results, err := db.Query("select * from Booking") //Retrieving from DB
 	if err != nil {
 		panic(err.Error())
 	}
@@ -286,8 +212,9 @@ func getBookings() map[string]Booking {
 	return bookings
 }
 
+// function to search for booking record
 func queryBookings(query string) (map[string]Booking, bool) {
-	results, err := db.Query("select * from Booking where lower(passengerid) like lower(?)", "%"+query+"%")
+	results, err := db.Query("select * from Booking where lower(passengerid) like lower(?)", "%"+query+"%") //Retrieving from DB
 	if err != nil {
 		panic(err.Error())
 	}
@@ -310,9 +237,10 @@ func queryBookings(query string) (map[string]Booking, bool) {
 	}
 	return bookings, true
 }
-func getPassengerBookings() map[string]Booking {
-	var query string
-	results, err := db.Query("select * from Booking where lower(passengerid) like lower(?)", "%"+query+"%")
+
+// function to search for booking records based on passenger id
+func findPassengerBookings(query string) (map[string]Booking, bool) {
+	results, err := db.Query("select * from Booking where lower(passengerid) like lower(?) order by bookingdatetime desc", "%"+query+"%") //Retrieving from DB
 	if err != nil {
 		panic(err.Error())
 	}
@@ -330,11 +258,17 @@ func getPassengerBookings() map[string]Booking {
 		bookings[id] = b
 	}
 
-	return bookings
+	if len(bookings) == 0 {
+		return bookings, false
+	}
+	return bookings, true
 }
+
+// function to get all pending booking records
 func getPendingBookings() map[string]Booking {
 	var query string
-	results, err := db.Query("select * from Booking where lower(bookingstatus) like lower(?)", "%"+query+"%")
+	query = "pending"
+	results, err := db.Query("select * from Booking where lower(bookingstatus) like lower(?)", "%"+query+"%") //Retrieving from DB
 	if err != nil {
 		panic(err.Error())
 	}
