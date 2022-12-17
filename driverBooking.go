@@ -1,5 +1,6 @@
 package main
 
+//import required packages
 import (
 	"bufio"
 	"bytes"
@@ -9,7 +10,7 @@ import (
 	"net/http"
 	"os"
 )
-
+// define Booking struct
 type Booking struct { // map this type to the record in the table
 	PassengerID     string `json:"Passenger Id"`
 	DriverID        string `json:"Driver Id"`
@@ -24,17 +25,20 @@ type Bookings struct {
 }
 
 func main() {
-	menu()
-
+	menu()//display menu
 }
+
+// function to list menu options
 func listMenu() {
 	fmt.Println("1. View pending bookings")
 	fmt.Println("2. Initiate start trip")
 	fmt.Println("3. End Trip")
-
 	fmt.Println("0. Exit")
 	fmt.Print("Enter an option: ")
 }
+
+
+// function to call menu functions based on user input
 func menu() {
 	var choose int
 	listMenu()
@@ -46,17 +50,17 @@ func menu() {
 		} else {
 			switch choose {
 			case 1:
-				ViewPendingBookings()
+				ViewPendingBookings()//View pending bookings
 				fmt.Println("")
 				bufio.NewReader(os.Stdin).ReadBytes('\n')
 				listMenu()
 			case 2:
-				InitiateStartTrip()
+				InitiateStartTrip()//Initiate a start trip for pending booking
 				fmt.Println("")
 				bufio.NewReader(os.Stdin).ReadBytes('\n')
 				listMenu()
 			case 3:
-				EndTrip()
+				EndTrip()//End trip for confirmed booking
 				fmt.Println("")
 				bufio.NewReader(os.Stdin).ReadBytes('\n')
 				listMenu()
@@ -68,16 +72,17 @@ func menu() {
 		}
 	}
 }
+
+//function to view all pending bookings
 func ViewPendingBookings() {
-
 	client := &http.Client{}
-
+	//send GET request
 	if req, err := http.NewRequest(http.MethodGet, "http://localhost:5003/api/v1/pendingbookings", nil); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if body, err := ioutil.ReadAll(res.Body); err == nil {
 				var res Bookings
-				json.Unmarshal(body, &res)
-
+				json.Unmarshal(body, &res)//Decoding from JSON
+				//print booking details
 				for k, v := range res.Bookings {
 					fmt.Println(v.BookingDateTime, "(", k, ")")
 					fmt.Println("PickUp postal code", v.PickUp)
@@ -95,19 +100,19 @@ func ViewPendingBookings() {
 		fmt.Println(3, err)
 	}
 }
+
+//function to initiate start trip
 func InitiateStartTrip() {
 	var booking Booking
 	var bookingID string
-	//driverID = "D0001"
 	fmt.Println()
 	fmt.Print("Enter Booking ID to initiate trip: ")
 	fmt.Scan(&(bookingID))
 	fmt.Print("Enter Driver ID: ")
 	fmt.Scan(&(booking.DriverID))
-	//booking.DriverID = driverID
-	booking.BookingStatus = "Confimed"
+	booking.BookingStatus = "Confimed"//booking status becomes confirmed
 
-	postBody, _ := json.Marshal(booking)
+	postBody, _ := json.Marshal(booking)//Sending PUT Request with data
 	resBody := bytes.NewBuffer(postBody)
 
 	client := &http.Client{}
@@ -125,18 +130,15 @@ func InitiateStartTrip() {
 		fmt.Println(3, err)
 	}
 }
+//function to end trip 
 func EndTrip() {
 	var booking Booking
-	//var driverID string
 	var bookingID string
-	//driverID = "D0001"
-	//bookingID = "B0001"
 	fmt.Print("Enter Booking ID to end trip: ")
 	fmt.Scan(&(bookingID))
-	//booking.DriverID = driverID
-	booking.BookingStatus = "Completed"
+	booking.BookingStatus = "Completed"//booking status becomes completed
 
-	postBody, _ := json.Marshal(booking)
+	postBody, _ := json.Marshal(booking)//Sending PUT Request with data
 	resBody := bytes.NewBuffer(postBody)
 
 	client := &http.Client{}

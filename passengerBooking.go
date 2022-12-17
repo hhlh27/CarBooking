@@ -1,5 +1,6 @@
 package main
 
+//import required packages
 import (
 	"bufio"
 	"bytes"
@@ -10,6 +11,7 @@ import (
 	"os"
 )
 
+// define Booking struct
 type Booking struct { // map this type to the record in the table
 	PassengerID     string `json:"Passenger Id"`
 	DriverID        string `json:"Driver Id"`
@@ -24,16 +26,18 @@ type Bookings struct {
 }
 
 func main() {
-	menu()
-
+	menu() //display menu
 }
+
+// function to list menu options
 func listMenu() {
 	fmt.Println("1. Make a booking")
 	fmt.Println("2. View all bookings")
-
 	fmt.Println("0. Exit")
 	fmt.Print("Enter an option: ")
 }
+
+// function to call menu functions based on user input
 func menu() {
 	var choose int
 	listMenu()
@@ -45,12 +49,12 @@ func menu() {
 		} else {
 			switch choose {
 			case 1:
-				create()
+				create() //make a new booking
 				fmt.Println("")
 				bufio.NewReader(os.Stdin).ReadBytes('\n')
 				listMenu()
 			case 2:
-				View()
+				View() //view all bookings
 				fmt.Println("")
 				bufio.NewReader(os.Stdin).ReadBytes('\n')
 				listMenu()
@@ -63,29 +67,28 @@ func menu() {
 	}
 
 }
+//function to make a new booking 
 func create() {
 	var booking Booking
-
 	var bookingID string
-
+	//prompt user for details
 	fmt.Println()
 	fmt.Print("Enter Passenger Id: ")
 	fmt.Scan(&(booking.DropOff))
 	booking.DriverID = ""
 	fmt.Print("Enter pickup postal code: ")
 	fmt.Scan(&(booking.DropOff))
-
 	fmt.Print("Enter your drop off postal code: ")
 	fmt.Scan(&(booking.DropOff))
 	fmt.Print("Enter booking date time: ")
 	fmt.Scan(&(booking.BookingDateTime))
-	//booking.BookingDateTime = time.Now()
 	booking.BookingStatus = "pending"
 
-	postBody, _ := json.Marshal(booking)
+	postBody, _ := json.Marshal(booking) //Sending POST Request with data
 	resBody := bytes.NewBuffer(postBody)
 
 	client := &http.Client{}
+	//send POST request
 	if req, err := http.NewRequest(http.MethodPost, "http://localhost:5003/api/v1/bookings/"+bookingID, resBody); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if res.StatusCode == 202 {
@@ -100,20 +103,21 @@ func create() {
 		fmt.Println(3, err)
 	}
 }
+//function to view bookings
 func View() {
-	//var passengerID string
 	var booking Booking
+	//prompt user for id
 	fmt.Print("Enter your identification number: ")
 	fmt.Scan(&booking.PassengerID)
 	client := &http.Client{}
-
-	if req, err := http.NewRequest(http.MethodGet, "http://localhost:5003/api/v1/passengerbookings", nil); err == nil {
+	//send GET request
+	if req, err := http.NewRequest(http.MethodGet, "http://localhost:5003/api/v1/bookings?passengerid"+booking.PassengerID, nil); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if body, err := ioutil.ReadAll(res.Body); err == nil {
 				var res Bookings
-				json.Unmarshal(body, &res)
-
+				json.Unmarshal(body, &res) //Decoding from JSON
 				for k, v := range res.Bookings {
+					//print booking details
 					fmt.Println(v.BookingDateTime, "(", k, ")")
 					fmt.Println("PickUp postal code", v.PickUp)
 					fmt.Println("DropOff postal code", v.DropOff)

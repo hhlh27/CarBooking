@@ -1,5 +1,6 @@
 package main
 
+//import required packages
 import (
 	"bufio"
 	"bytes"
@@ -9,19 +10,8 @@ import (
 	"os"
 )
 
-/*
-	 type Driver struct { // map this type to the record in the table
-		DriverID  string
-		FirstName string
-		LastName  string
-		CarNo     string
-		Mobile    int
-		Email     string
-		Password  string
-	}
-*/
+// define Driver struct
 type Driver struct { // map this type to the record in the table
-
 	FirstName string `json:"First Name"`
 	LastName  string `json:"Last Name"`
 	CarNo     string `json:"Car Number"`
@@ -35,15 +25,18 @@ type Drivers struct {
 }
 
 func main() {
-	menu()
+	menu() //display menu
 }
 
+// function to list menu options
 func listMenu() {
 	fmt.Println("1. Create New Driver Account")
 	fmt.Println("2. Update Driver Account")
 	fmt.Println("0. Exit")
 	fmt.Print("Enter an option: ")
 }
+
+// function to call menu functions based on user input
 func menu() {
 	var choose int
 	listMenu()
@@ -55,12 +48,12 @@ func menu() {
 		} else {
 			switch choose {
 			case 1:
-				create()
+				create() //create new passenger account
 				fmt.Println("")
 				bufio.NewReader(os.Stdin).ReadBytes('\n')
 				listMenu()
 			case 2:
-				update()
+				update() //update passenger account
 				fmt.Println("")
 				bufio.NewReader(os.Stdin).ReadBytes('\n')
 				listMenu()
@@ -72,41 +65,30 @@ func menu() {
 		}
 	}
 }
+
+// function to create new driver account
 func create() {
 	var driver Driver
 	var driverID string
-
-	//consoleReader := bufio.NewReader(os.Stdin)
 	fmt.Println()
+	//prompt user for details
 	fmt.Print("Enter your identification number: ")
-
 	fmt.Scan(&(driverID))
 	fmt.Print("Enter your first name: ")
-
 	fmt.Scan(&(driver.FirstName))
-	/* reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	driver.FirstName = strings.TrimSpace(input)   */
-	//fmt.Scanf("%s", &(driver.FirstName))
-	//fmt.Print("\n")
 	fmt.Print("Enter your last name: ")
-
 	fmt.Scan(&(driver.LastName))
-
 	fmt.Print("Enter your car Number: ")
 	fmt.Scan(&(driver.CarNo))
-	//fmt.Print("\n")
 	fmt.Print("Enter your mobile number: ")
 	fmt.Scan(&(driver.Mobile))
-	//fmt.Print("\n")
 	fmt.Print("Enter your email: ")
 	fmt.Scan(&(driver.Email))
 	fmt.Println()
-	//fmt.Print("\n")
 	fmt.Print("Enter your password: ")
 	fmt.Scan(&(driver.Password))
-	//fmt.Print("\n")
-	postBody, _ := json.Marshal(driver)
+
+	postBody, _ := json.Marshal(driver) //Sending POST Request with data
 	resBody := bytes.NewBuffer(postBody)
 
 	client := &http.Client{}
@@ -124,43 +106,28 @@ func create() {
 		fmt.Println(3, err)
 	}
 }
+
+// function to update driver account
 func update() {
 	var driver Driver
 	var driverID string
-
 	fmt.Println()
 	fmt.Print("Enter your identification number: ")
-
 	fmt.Scan(&(driverID))
-
+	//prompt user for updated details
 	fmt.Print("Enter your first name: ")
-
 	fmt.Scan(&(driver.FirstName))
-	/* reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	driver.FirstName = strings.TrimSpace(input)   */
-	//fmt.Scanf("%s", &(driver.FirstName))
-	//fmt.Print("\n")
 	fmt.Print("Enter your last name: ")
-
 	fmt.Scan(&(driver.LastName))
-	//fmt.Print("\n")
-
-	//fmt.Print("\n")
 	fmt.Print("Enter your car Number: ")
 	fmt.Scan(&(driver.CarNo))
-	//fmt.Print("\n")
 	fmt.Print("Enter your mobile number: ")
 	fmt.Scan(&(driver.Mobile))
-	//fmt.Print("\n")
 	fmt.Print("Enter your email: ")
 	fmt.Scan(&(driver.Email))
-
-	//fmt.Println()
-	//fmt.Print("\n")
 	fmt.Print("Enter your password: ")
 	fmt.Scan(&(driver.Password))
-
+	//Sending PUT Request with data
 	postBody, _ := json.Marshal(driver)
 
 	client := &http.Client{}
