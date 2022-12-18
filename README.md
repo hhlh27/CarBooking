@@ -110,6 +110,7 @@ Driver User
 - The booking status for the booking record will change to ‘completed’. 
 - The passenger can then alight at the destination and the trip has been completed successfully.
 
+Done by: Hannah Loh S10186258
 
 References:
 
