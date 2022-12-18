@@ -89,7 +89,7 @@ func create() {
 
 	client := &http.Client{}
 	//send POST request
-	if req, err := http.NewRequest(http.MethodPost, "http://localhost:5000/api/v1/passenger/"+passengerID, resBody); err == nil {
+	if req, err := http.NewRequest(http.MethodPost, "http://localhost:5000/api/v1/passengers/"+passengerID, resBody); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if res.StatusCode == 202 {
 				fmt.Println("Passenger", passengerID, "created successfully")
@@ -125,7 +125,7 @@ func update() {
 	postBody, _ := json.Marshal(passenger)
 	//Sending PUT Request with data
 	client := &http.Client{}
-	if req, err := http.NewRequest(http.MethodPut, "http://localhost:5000/api/v1/passenger/"+passengerID, bytes.NewBuffer(postBody)); err == nil {
+	if req, err := http.NewRequest(http.MethodPut, "http://localhost:5000/api/v1/passengers/"+passengerID, bytes.NewBuffer(postBody)); err == nil {
 		if res, err := client.Do(req); err == nil {
 			if res.StatusCode == 202 {
 				fmt.Println("passenger", passengerID, "updated successfully")

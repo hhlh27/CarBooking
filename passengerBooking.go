@@ -67,22 +67,28 @@ func menu() {
 	}
 
 }
-//function to make a new booking 
+
+// function to make a new booking
 func create() {
 	var booking Booking
 	var bookingID string
+	bookingID = "B1012"
 	//prompt user for details
 	fmt.Println()
 	fmt.Print("Enter Passenger Id: ")
-	fmt.Scan(&(booking.DropOff))
-	booking.DriverID = ""
+	fmt.Scan(&(booking.PassengerID))
+	fmt.Print("Driver Id(NIL): ")
+	fmt.Scan(&(booking.DriverID))
+	//booking.DriverID = ""
 	fmt.Print("Enter pickup postal code: ")
-	fmt.Scan(&(booking.DropOff))
+	fmt.Scan(&(booking.PickUp))
 	fmt.Print("Enter your drop off postal code: ")
 	fmt.Scan(&(booking.DropOff))
 	fmt.Print("Enter booking date time: ")
 	fmt.Scan(&(booking.BookingDateTime))
-	booking.BookingStatus = "pending"
+	fmt.Print("booking status(pending):  ")
+	fmt.Scan(&(booking.BookingStatus))
+	//booking.BookingStatus = "pending"
 
 	postBody, _ := json.Marshal(booking) //Sending POST Request with data
 	resBody := bytes.NewBuffer(postBody)
@@ -103,7 +109,8 @@ func create() {
 		fmt.Println(3, err)
 	}
 }
-//function to view bookings
+
+// function to view bookings
 func View() {
 	var booking Booking
 	//prompt user for id

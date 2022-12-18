@@ -48,12 +48,12 @@ func menu() {
 		} else {
 			switch choose {
 			case 1:
-				create() //create new passenger account
+				create() //create new driver account
 				fmt.Println("")
 				bufio.NewReader(os.Stdin).ReadBytes('\n')
 				listMenu()
 			case 2:
-				update() //update passenger account
+				update() //update driver account
 				fmt.Println("")
 				bufio.NewReader(os.Stdin).ReadBytes('\n')
 				listMenu()
@@ -136,7 +136,7 @@ func update() {
 			if res.StatusCode == 202 {
 				fmt.Println("Driver", driverID, "updated successfully")
 			} else if res.StatusCode == 404 {
-				fmt.Println("Error - course", driverID, "does not exist")
+				fmt.Println("Error - driver", driverID, "does not exist")
 			}
 		} else {
 			fmt.Println(2, err)
