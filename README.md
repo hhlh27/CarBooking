@@ -78,7 +78,7 @@ Passenger user
 - Enter your identification number, first name, mobile number, email and password. 
 - There will be a message displayed if account is created successfully.
 
--To update your account, enter option 2. 
+- To update your account, enter option 2. 
 - Enter your identification number. 
 - The system will then prompt for your updated details. 
 - There will be a message displayed if account is updated successfully.
