@@ -79,7 +79,6 @@ func create() {
 	fmt.Scan(&(booking.PassengerID))
 	fmt.Print("Driver Id(NIL): ")
 	fmt.Scan(&(booking.DriverID))
-	//booking.DriverID = ""
 	fmt.Print("Enter pickup postal code: ")
 	fmt.Scan(&(booking.PickUp))
 	fmt.Print("Enter your drop off postal code: ")
@@ -88,7 +87,6 @@ func create() {
 	fmt.Scan(&(booking.BookingDateTime))
 	fmt.Print("booking status(pending):  ")
 	fmt.Scan(&(booking.BookingStatus))
-	//booking.BookingStatus = "pending"
 
 	postBody, _ := json.Marshal(booking) //Sending POST Request with data
 	resBody := bytes.NewBuffer(postBody)
